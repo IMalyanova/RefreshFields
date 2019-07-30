@@ -1,19 +1,73 @@
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+
+public class Loader {
+
+   public static void main(String[] args)  {
+
+       Loader loader = new Loader();
+       RefreshFields refreshFields = RefreshFields.getInstance();
+       Address addressInLoader = new Address();
+       try {
+           loader.serchAnatation(refreshFields, refreshFields.getClass());
+           loader.serchAnatation(addressInLoader,addressInLoader.getClass());
+       } catch (IllegalAccessException e) {
+           e.printStackTrace();
+       }
+   }
+
+    void serchAnatation (Object obj, Class clasS) throws IllegalAccessException {
+
+        Field fields[] = clasS.getDeclaredFields();
+
+        for (Field field : fields){
+
+            Annotation annotations[] = field.getDeclaredAnnotations();
+            for (Annotation annotation : annotations){
+
+                if (annotation.annotationType().equals(Property.class)){
+                    System.out.println("anat : " + field.get(obj));
+                }
+            }
+        }
+    }
+
+
+}
+//=========================================================================================================================
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.FIELD)
+public @interface Property {
+
+    String nameInterface();
+
+
+}
+
+//=========================================================================================================================
+
 import java.io.*;
 import java.util.Properties;
 
-public class  RefreshFields {
+public class RefreshFields {
 
-    //    @Property
-    private int old;
-    //    @Property
-    private String name;
-    //    @Property
-    private Address address;
+    @Property(nameInterface = "old")
+    protected String old;
+
+    @Property(nameInterface = "name")
+    protected String name;
+
+    @Property(nameInterface = "address")
+    protected Address address;
 
     private static RefreshFields instance;
-    public static void setInstance(RefreshFields instance) {
-        RefreshFields.instance = instance;
-    }
+
 
     private RefreshFields() {
         address = new Address();
@@ -29,18 +83,26 @@ public class  RefreshFields {
         return instance;
     }
 
+
     public synchronized void doRefresh() {
 
         address.refreshAddress();
         System.out.println(address.getStreet());
         System.out.println(address.getHome());
 
-        Properties propName = getDefaultfProperties("name", "Company");
-        Properties propOld = getDefaultfProperties("old", "0");
-        Properties propA = new Properties();
+        Properties defaultPropName = new Properties();
+        defaultPropName.setProperty("name", "Company");
+        Properties propName = new Properties(defaultPropName);
 
+        Properties defaultPropOld = new Properties();
+        defaultPropOld.setProperty("old", "0");
+        Properties propOld = new Properties(defaultPropOld);
+
+        Properties propA = new Properties();
+        propA.setProperty("address", String.valueOf(address.getObject()));
 
         FileInputStream fileInputStream = null;
+
         try {
             fileInputStream = new FileInputStream( "refresh.properties" );
 
@@ -54,36 +116,42 @@ public class  RefreshFields {
             System.out.println("Address " + propA.getProperty("address"));
 
         } catch (Exception e) {
+
             System.out.println("in log ");
             e.printStackTrace();
+
+        }finally {
+            try {
+                fileInputStream.close();
+
+            } catch (Exception e) {
+
+                System.out.println("in log ");
+                e.printStackTrace();
+            }
         }
     }
 
-    private Properties getDefaultfProperties(String key, String value) {
-        Properties defaultProp = new Properties();
-        defaultProp.setProperty(key, value);
-        return new Properties(defaultProp);
-    }
 
+    public String getOld() {return old;}
+    public void setOld(String old) { this.old = old;}
 
-    public int getOld() {return old;}
-    public void setOld(int old) {
-        this.old = old;
-    }
-
-    public String getName() {
-        return name;
-    }
-    public void setName(String name) {
-        this.name = name;
-    }
+    public String getName() {  return name; }
+    public void setName(String name) { this.name = name; }
 
     public Address getAddress() { return address;}
     public void setAddress(Address address) { this.address = address;}
 
+    public static void setInstance(RefreshFields instance) {
+        RefreshFields.instance = instance;
+    }
+
 }
 
-//========================================================================================
+
+
+
+//=========================================================================================================================
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -93,8 +161,14 @@ import java.nio.file.Paths;
 
 public class Address {
 
-    private String street;
-    private String home;
+    @Property(nameInterface = "street")
+    protected String street;
+
+    @Property(nameInterface = "home")
+    protected String home;
+
+    @Property(nameInterface = "object")
+    protected JSONObject object;
 
     public Address() {
         refreshAddress();
@@ -102,29 +176,20 @@ public class Address {
 
     public void refreshAddress() {
         try {
-//            HashMap<String,String> hashMap = new HashMap<>();
             JSONParser parser = new JSONParser();
             String path = "address.json";
-            JSONObject object = (JSONObject) parser.parse(new String(Files.readAllBytes(Paths.get(path))));
+            object = (JSONObject) parser.parse(new String(Files.readAllBytes(Paths.get(path))));
 
             setStreet((String) object.get("street"));
             setHome((String) object.get("home"));
-//            System.out.println(getHome());
-//            System.out.println(getStreet());
             this.street = getStreet();
             this.home = getHome();
-//            for (Object key : object.keySet()){
-//                String value = String.valueOf(object.get(key));
-//                System.out.println(value);
-////                hashMap.put((String) key,value);
-//            }
+
         } catch (Exception e) {
             System.out.println("in log");
             e.printStackTrace();
         }
     }
-
-
 
 
 
@@ -141,37 +206,16 @@ public class Address {
     public String getHome() {
         return home;
     }
-//    public void setStreet() {
-//
-//        Properties defoltPropStreet = new Properties();
-//        defoltPropStreet.setProperty("street", "Lenina");
-//        Properties propStreet = new Properties(defoltPropStreet);
-//        FileInputStream fileInputStream = null;
-//        try {
-//            fileInputStream = new FileInputStream( "refresh.properties" );
-//            propStreet.load(fileInputStream);
-//            System.out.println(propStreet.getProperty("name"));
-//        } catch (Exception e) {
-//            System.out.println("in log");
-//        }
-//        street = String.valueOf(propStreet.getProperty("street"));//
-//    }
 
-//    public void setHome()  {
-//        Properties defoltPropHome = new Properties();
-//        defoltPropHome.setProperty("home", "0");
-//        Properties propHome = new Properties(defoltPropHome);
-//        Properties address = new Properties();//
-//        try {
-//            FileInputStream fileInputStream = new FileInputStream( "refresh.properties" );
-//            address.load(fileInputStream);
-//            home = String.valueOf(address.getProperty("home"));
-//            System.out.println(address.getProperty("home"));
-//        }catch (Exception e){
-//            System.out.println("yyyyyf");
-//        }////
-//    }
 
+    public JSONObject getObject() {
+        return object;
+    }
+
+    public void setObject(JSONObject object) {
+        this.object = object;
+    }
 
 
 }
+
