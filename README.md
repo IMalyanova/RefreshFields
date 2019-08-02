@@ -7,7 +7,12 @@ public class Loader {
    }
 
 }
-//==============
+
+
+//=======================
+
+
+
 import java.io.*;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -54,14 +59,21 @@ public class RefreshFields {
 
     public synchronized void doRefresh() {
 
-        address.refreshAddress();
+//        address.refreshAddress();
 
         FileInputStream fileInputStream = null;
         try {
             fileInputStream = new FileInputStream( "refresh.properties" );
             prop.load(fileInputStream);
-            refreshName();
-            refreshOld();
+//            refreshName();
+//            refreshOld();
+
+            try {
+                this.serchAnatation(this, this.getClass());
+                this.serchAnatation(address,address.getClass());
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
         } catch (Exception e) {
             System.out.println("in log ");
             e.printStackTrace();
@@ -75,12 +87,7 @@ public class RefreshFields {
         }
 
 
-        try {
-            this.serchAnatation(this, this.getClass());
-            this.serchAnatation(address,address.getClass());
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        }
+
 
 
     }
@@ -97,6 +104,18 @@ public class RefreshFields {
             for (Annotation annotation : annotations){
 
                 if (annotation.annotationType().equals(Property.class)){
+
+                    switch(field.getName()) {
+                        case "name" : refreshName();
+                            break;
+                        case "old" : refreshOld();
+                            break;
+                        case "address" :
+                        case "home" :
+                        case "street" : address.refreshAddress();
+                            break;
+                    }
+
                     System.out.println();
                     System.out.println("anat : " + field.getName());
                     System.out.println( field.get(obj));
@@ -123,7 +142,11 @@ public class RefreshFields {
 }
 
 
-//===========
+
+
+//==================
+
+
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -244,7 +267,10 @@ public class Address {
 }
 
 
-//==================
+
+
+//================
+
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
