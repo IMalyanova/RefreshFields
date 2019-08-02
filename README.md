@@ -27,7 +27,10 @@ public class Loader {
             for (Annotation annotation : annotations){
 
                 if (annotation.annotationType().equals(Property.class)){
-                    System.out.println("anat : " + field.get(obj));
+                    System.out.println();
+                    System.out.println("anat : " + field.getName());
+                    System.out.println( field.get(obj));
+
                 }
             }
         }
@@ -35,8 +38,7 @@ public class Loader {
 
 
 }
-//===================================================================================================================
-
+//===================
 import java.io.*;
 import java.util.Properties;
 
@@ -61,8 +63,6 @@ public class RefreshFields {
         address = new Address();
         fieldsDefault();
         doRefresh();
-        this.old = old;
-        this.name = name;
     }
 
     public static synchronized RefreshFields getInstance() {
@@ -87,16 +87,13 @@ public class RefreshFields {
 
     public synchronized void doRefresh() {
 
-//        address.refreshAddress();
-//        prop.setProperty("address", String.valueOf(address.getObject()));
-
+        refreshAddress();
         FileInputStream fileInputStream = null;
         try {
             fileInputStream = new FileInputStream( "refresh.properties" );
             prop.load(fileInputStream);
-            name = prop.getProperty("name");
-            old = prop.getProperty("old");
-
+            refreshName();
+            refreshOld();
         } catch (Exception e) {
             System.out.println("in log ");
             e.printStackTrace();
@@ -112,17 +109,24 @@ public class RefreshFields {
 
 
 
+
     public String getOld() {return old;}
-    public void setOld(String old) { this.old = old;}
+    protected void setOld(String old) { this.old = old;}
+    public void refreshOld(){ setOld(prop.getProperty("old"));   }
 
     public String getName() {  return name; }
-    public void setName(String name) { this.name = name; }
+    protected void setName(String name) { this.name = name; }
+    public void refreshName(){ setName(prop.getProperty("name"));   }
 
     public Address getAddress() { return address;}
-    private void setAddress(Address address) { this.address = address;}
+    protected void setAddress(Address address) { this.address = address;}
+    public void refreshAddress(){
+        address.refreshAddress();
+    }
 
 }
-//=========================================================================================================
+
+//=========
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
@@ -148,8 +152,6 @@ public class Address {
 
     public Address() {
 
-        this.strAddress = refreshStrAdr();
-        updateVarInFile();
         refreshAddress();
     }
 
@@ -198,7 +200,11 @@ public class Address {
     }
 
 
-    public void refreshAddress() {
+    public synchronized void refreshAddress() {
+
+        refreshStrAdr();
+        updateVarInFile();
+
         try {
             JSONParser parser = new JSONParser();
             object = (JSONObject) parser.parse(new String(Files.readAllBytes(Paths.get(path))));
@@ -228,7 +234,7 @@ public class Address {
 
 
 }
-//====================================================================================================
+//=========
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
