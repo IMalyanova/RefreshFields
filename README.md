@@ -1,45 +1,16 @@
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
 
 public class Loader {
 
    public static void main(String[] args)  {
 
-       Loader loader = new Loader();
-       RefreshFields refreshFields = RefreshFields.getInstance();
-       Address addressInLoader = new Address();
-       try {
-           loader.serchAnatation(refreshFields, refreshFields.getClass());
-           loader.serchAnatation(addressInLoader,addressInLoader.getClass());
-       } catch (IllegalAccessException e) {
-           e.printStackTrace();
-       }
-
+      RefreshFields refreshFields = RefreshFields.getInstance();
    }
 
-    void serchAnatation (Object obj, Class clasS) throws IllegalAccessException {
-
-        Field fields[] = clasS.getDeclaredFields();
-
-        for (Field field : fields){
-
-            Annotation annotations[] = field.getDeclaredAnnotations();
-            for (Annotation annotation : annotations){
-
-                if (annotation.annotationType().equals(Property.class)){
-                    System.out.println();
-                    System.out.println("anat : " + field.getName());
-                    System.out.println( field.get(obj));
-
-                }
-            }
-        }
-    }
-
-
 }
-//===================
+//==============
 import java.io.*;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.util.Properties;
 
 public class RefreshFields {
@@ -71,10 +42,6 @@ public class RefreshFields {
         return instance;
     }
 
-    public static void setInstance(RefreshFields instance) {
-        RefreshFields.instance = instance;
-    }
-
 
     private void fieldsDefault(){
 
@@ -87,7 +54,8 @@ public class RefreshFields {
 
     public synchronized void doRefresh() {
 
-        refreshAddress();
+        address.refreshAddress();
+
         FileInputStream fileInputStream = null;
         try {
             fileInputStream = new FileInputStream( "refresh.properties" );
@@ -105,8 +73,38 @@ public class RefreshFields {
                 e.printStackTrace();
             }
         }
+
+
+        try {
+            this.serchAnatation(this, this.getClass());
+            this.serchAnatation(address,address.getClass());
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+
+
     }
 
+
+
+    void serchAnatation (Object obj, Class clasS) throws IllegalAccessException {
+
+        Field fields[] = clasS.getDeclaredFields();
+
+        for (Field field : fields){
+
+            Annotation annotations[] = field.getDeclaredAnnotations();
+            for (Annotation annotation : annotations){
+
+                if (annotation.annotationType().equals(Property.class)){
+                    System.out.println();
+                    System.out.println("anat : " + field.getName());
+                    System.out.println( field.get(obj));
+
+                }
+            }
+        }
+    }
 
 
 
@@ -120,13 +118,13 @@ public class RefreshFields {
 
     public Address getAddress() { return address;}
     protected void setAddress(Address address) { this.address = address;}
-    public void refreshAddress(){
-        address.refreshAddress();
-    }
+
 
 }
 
-//=========
+
+//===========
+
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
@@ -139,7 +137,7 @@ import java.util.Properties;
 
 public class Address {
 
-    @Property(nameInterface = "street", defaultValue = "Lenina")
+    @Property(nameInterface = "street", defaultValue = "street")
     protected String street;
 
     @Property(nameInterface = "home", defaultValue = "0")
@@ -148,18 +146,28 @@ public class Address {
     protected JSONObject object;
     protected String strAddress;
     private String path = "address.json";
+    Properties prop;
 
 
     public Address() {
-
+        fieldsAddressDefault();
         refreshAddress();
+    }
+
+    private void fieldsAddressDefault(){
+
+        Properties defaultProp = new Properties();
+        defaultProp.setProperty("address", "{\"street\": \"street\", \"home\": \"0\"}");
+        defaultProp.setProperty("street", "street");
+        defaultProp.setProperty("home", "0");
+        prop = new Properties(defaultProp);
     }
 
 
    protected String refreshStrAdr(){
 
        FileInputStream fileInputStream = null;
-       Properties prop = new Properties();
+
        try {
            fileInputStream = new FileInputStream( "refresh.properties" );
            prop.load(fileInputStream);
@@ -234,7 +242,10 @@ public class Address {
 
 
 }
-//=========
+
+
+//==================
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
