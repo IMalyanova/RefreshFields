@@ -12,6 +12,7 @@ public class Loader {
 //=======================
 
 
+import org.apache.log4j.Logger;
 
 import java.io.*;
 import java.lang.annotation.Annotation;
@@ -19,6 +20,8 @@ import java.lang.reflect.Field;
 import java.util.Properties;
 
 public class RefreshFields {
+
+    private static final Logger LOGGER = Logger.getLogger(RefreshFields.class);
 
     @Property(nameInterface = "old", defaultValue = "0")
     protected String old;
@@ -29,9 +32,8 @@ public class RefreshFields {
     @Property(nameInterface = "address")
     protected Address address;
 
-
     private static RefreshFields instance;
-    protected Properties prop;
+    private Properties prop;
 
 
     private RefreshFields() {
@@ -42,8 +44,11 @@ public class RefreshFields {
     }
 
     public static synchronized RefreshFields getInstance() {
-        if (instance == null)
+
+        if (instance == null){
+
             instance = new RefreshFields();
+        }
         return instance;
     }
 
@@ -59,37 +64,33 @@ public class RefreshFields {
 
     public synchronized void doRefresh() {
 
-//        address.refreshAddress();
-
         FileInputStream fileInputStream = null;
+
         try {
             fileInputStream = new FileInputStream( "refresh.properties" );
             prop.load(fileInputStream);
-//            refreshName();
-//            refreshOld();
 
-            try {
-                this.serchAnatation(this, this.getClass());
-                this.serchAnatation(address,address.getClass());
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            }
+            this.serchAnatation(this, this.getClass());
+            this.serchAnatation(address,address.getClass());
+
+        } catch (IllegalAccessException e) {
+
+            LOGGER.error(e.getMessage(), e);
+
         } catch (Exception e) {
-            System.out.println("in log ");
-            e.printStackTrace();
+
+            LOGGER.error(e.getMessage(), e);
+
         }finally {
+
             try {
                 fileInputStream.close();
+
             } catch (Exception e) {
-                System.out.println("in log ");
-                e.printStackTrace();
+
+                LOGGER.error(e.getMessage(), e);
             }
-        }
-
-
-
-
-
+        }    System.out.println(address.strAddress);
     }
 
 
@@ -101,11 +102,13 @@ public class RefreshFields {
         for (Field field : fields){
 
             Annotation annotations[] = field.getDeclaredAnnotations();
+
             for (Annotation annotation : annotations){
 
                 if (annotation.annotationType().equals(Property.class)){
 
                     switch(field.getName()) {
+
                         case "name" : refreshName();
                             break;
                         case "old" : refreshOld();
@@ -115,16 +118,11 @@ public class RefreshFields {
                         case "street" : address.refreshAddress();
                             break;
                     }
-
-                    System.out.println();
-                    System.out.println("anat : " + field.getName());
-                    System.out.println( field.get(obj));
-
+                    System.out.println();  System.out.println("anat : " + field.getName());      System.out.println( field.get(obj));
                 }
             }
         }
     }
-
 
 
     public String getOld() {return old;}
@@ -138,8 +136,8 @@ public class RefreshFields {
     public Address getAddress() { return address;}
     protected void setAddress(Address address) { this.address = address;}
 
-
 }
+
 
 
 
