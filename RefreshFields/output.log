@@ -1,0 +1,60 @@
+2019-08-03 14:20:38 ERROR Address:57 - refresh.poperties (Не удается найти указанный файл)
+java.io.FileNotFoundException: refresh.poperties (Не удается найти указанный файл)
+	at java.io.FileInputStream.open0(Native Method)
+	at java.io.FileInputStream.open(FileInputStream.java:195)
+	at java.io.FileInputStream.<init>(FileInputStream.java:138)
+	at java.io.FileInputStream.<init>(FileInputStream.java:93)
+	at Address.refreshStrAdr(Address.java:51)
+	at Address.refreshAddress(Address.java:103)
+	at Address.<init>(Address.java:33)
+	at RefreshFields.<init>(RefreshFields.java:27)
+	at RefreshFields.getInstance(RefreshFields.java:36)
+	at Loader.main(Loader.java:10)
+2019-08-03 14:20:38 ERROR Address:66 - 
+java.lang.NullPointerException
+	at Address.refreshStrAdr(Address.java:62)
+	at Address.refreshAddress(Address.java:103)
+	at Address.<init>(Address.java:33)
+	at RefreshFields.<init>(RefreshFields.java:27)
+	at RefreshFields.getInstance(RefreshFields.java:36)
+	at Loader.main(Loader.java:10)
+2019-08-03 14:20:38 ERROR Address:91 - 
+
+2019-08-03 20:41:19 ERROR Address:81 - 1
+java.lang.ArrayIndexOutOfBoundsException: 1
+	at Address.updateVarInFile(Address.java:74)
+	at Address.refreshAddress(Address.java:92)
+	at Address.<init>(Address.java:28)
+	at RefreshFields.serchAnatation(RefreshFields.java:92)
+	at RefreshFields.doRefresh(RefreshFields.java:61)
+	at RefreshFields.<init>(RefreshFields.java:30)
+	at RefreshFields.getInstance(RefreshFields.java:37)
+	at Loader.main(Loader.java:5)
+2019-08-03 20:41:19 ERROR Address:104 - 
+Unexpected token END OF FILE at position 0.
+	at org.json.simple.parser.JSONParser.parse(JSONParser.java:257)
+	at org.json.simple.parser.JSONParser.parse(JSONParser.java:81)
+	at org.json.simple.parser.JSONParser.parse(JSONParser.java:75)
+	at Address.refreshAddress(Address.java:96)
+	at Address.<init>(Address.java:28)
+	at RefreshFields.serchAnatation(RefreshFields.java:92)
+	at RefreshFields.doRefresh(RefreshFields.java:61)
+	at RefreshFields.<init>(RefreshFields.java:30)
+	at RefreshFields.getInstance(RefreshFields.java:37)
+	at Loader.main(Loader.java:5)
+2019-08-03 20:41:19 ERROR Address:81 - 1
+java.lang.ArrayIndexOutOfBoundsException: 1
+	at Address.updateVarInFile(Address.java:74)
+	at Address.refreshAddress(Address.java:92)
+	at RefreshFields.serchAnatation(RefreshFields.java:96)
+	at RefreshFields.doRefresh(RefreshFields.java:61)
+	at Loader.main(Loader.java:7)
+2019-08-03 20:41:19 ERROR Address:104 - 
+Unexpected token END OF FILE at position 0.
+	at org.json.simple.parser.JSONParser.parse(JSONParser.java:257)
+	at org.json.simple.parser.JSONParser.parse(JSONParser.java:81)
+	at org.json.simple.parser.JSONParser.parse(JSONParser.java:75)
+	at Address.refreshAddress(Address.java:96)
+	at RefreshFields.serchAnatation(RefreshFields.java:96)
+	at RefreshFields.doRefresh(RefreshFields.java:61)
+	at Loader.main(Loader.java:7)
