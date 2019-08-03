@@ -1,15 +1,14 @@
-
 public class Loader {
 
-   public static void main(String[] args)  {
+    public static void main(String[] args)   {
 
-      RefreshFields refreshFields = RefreshFields.getInstance();
+        RefreshFields refreshFields = RefreshFields.getInstance();
    }
 
 }
 
 
-//=======================
+//==========================
 
 
 import org.apache.log4j.Logger;
@@ -24,28 +23,29 @@ public class RefreshFields {
     private static final Logger LOGGER = Logger.getLogger(RefreshFields.class);
 
     @Property(nameInterface = "old", defaultValue = "0")
-    protected String old;
+    private String old;
 
     @Property(nameInterface = "name", defaultValue = "Company")
-    protected String name;
+    private String name;
 
     @Property(nameInterface = "address")
-    protected Address address;
+    private Address address;
 
     private static RefreshFields instance;
+    private int countAddressInRefreshFields = 0;
     private Properties prop;
+
 
 
     private RefreshFields() {
 
-        address = new Address();
         fieldsDefault();
         doRefresh();
     }
 
     public static synchronized RefreshFields getInstance() {
 
-        if (instance == null){
+        if (instance == null) {
 
             instance = new RefreshFields();
         }
@@ -53,7 +53,7 @@ public class RefreshFields {
     }
 
 
-    private void fieldsDefault(){
+    private void fieldsDefault() {
 
         Properties defaultProp = new Properties();
         defaultProp.setProperty("name", "Company");
@@ -64,113 +64,106 @@ public class RefreshFields {
 
     public synchronized void doRefresh() {
 
-        FileInputStream fileInputStream = null;
+        String path = "refresh.properties";
+        BufferedReader reader = null;
 
         try {
-            fileInputStream = new FileInputStream( "refresh.properties" );
-            prop.load(fileInputStream);
+            reader = new BufferedReader(new FileReader(path));
+            prop.load(reader);
 
-            this.serchAnatation(this, this.getClass());
-            this.serchAnatation(address,address.getClass());
-
-        } catch (IllegalAccessException e) {
-
-            LOGGER.error(e.getMessage(), e);
+            this.serchAnatation();
 
         } catch (Exception e) {
 
             LOGGER.error(e.getMessage(), e);
-
-        }finally {
-
-            try {
-                fileInputStream.close();
-
-            } catch (Exception e) {
-
-                LOGGER.error(e.getMessage(), e);
-            }
-        }    System.out.println(address.strAddress);
-    }
-
-
-
-    void serchAnatation (Object obj, Class clasS) throws IllegalAccessException {
-
-        Field fields[] = clasS.getDeclaredFields();
-
-        for (Field field : fields){
-
-            Annotation annotations[] = field.getDeclaredAnnotations();
-
-            for (Annotation annotation : annotations){
-
-                if (annotation.annotationType().equals(Property.class)){
-
-                    switch(field.getName()) {
-
-                        case "name" : refreshName();
-                            break;
-                        case "old" : refreshOld();
-                            break;
-                        case "address" :
-                        case "home" :
-                        case "street" : address.refreshAddress();
-                            break;
-                    }
-                    System.out.println();  System.out.println("anat : " + field.getName());      System.out.println( field.get(obj));
-                }
-            }
         }
     }
 
 
+    private void serchAnatation() {
+
+        Field fields[] = this.getClass().getDeclaredFields();
+
+        for (Field field : fields) {
+
+            Annotation annotations[] = field.getDeclaredAnnotations();
+
+            for (Annotation annotation : annotations) {
+
+                if (annotation.annotationType().equals(Property.class)) {
+
+                    switch (field.getName()) {
+
+                        case "name":
+                            refreshName();
+                            break;
+                        case "old":
+                            refreshOld();
+                            break;
+                        case "address":
+                            if (countAddressInRefreshFields == 0){
+                                address = new Address();
+                                countAddressInRefreshFields = 1;
+                                break;
+                            }else {
+                                address.refreshAddress();
+                                break;
+                            }
+                    }
+                }
+            }
+        }
+
+
+
+    }
+
+
     public String getOld() {return old;}
-    protected void setOld(String old) { this.old = old;}
+    private void setOld(String old) { this.old = old;}
     public void refreshOld(){ setOld(prop.getProperty("old"));   }
 
     public String getName() {  return name; }
-    protected void setName(String name) { this.name = name; }
+    private void setName(String name) { this.name = name; }
     public void refreshName(){ setName(prop.getProperty("name"));   }
 
     public Address getAddress() { return address;}
-    protected void setAddress(Address address) { this.address = address;}
+    private void setAddress(Address address) { this.address = address;}
 
 }
 
 
 
+//================
 
 
-//==================
-
-
-
+import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Properties;
 
+
 public class Address {
 
-    @Property(nameInterface = "street", defaultValue = "street")
-    protected String street;
+    private static final Logger LOGGER = Logger.getLogger(Address.class);
 
-    @Property(nameInterface = "home", defaultValue = "0")
-    protected String home;
 
-    protected JSONObject object;
-    protected String strAddress;
-    private String path = "address.json";
-    Properties prop;
+    protected String path = "address.json";
 
+    private String street;
+    private String home;
+    private JSONObject objectJSON;
+    private Properties prop;
+    private String strAddress;
 
     public Address() {
+
         fieldsAddressDefault();
         refreshAddress();
     }
@@ -187,43 +180,45 @@ public class Address {
 
    protected String refreshStrAdr(){
 
-       FileInputStream fileInputStream = null;
+       String pathProperties = "refresh.properties";
+       BufferedReader reader = null;
 
        try {
-           fileInputStream = new FileInputStream( "refresh.properties" );
-           prop.load(fileInputStream);
+           reader = new BufferedReader(new FileReader(pathProperties));
+           prop.load(reader);
            strAddress = prop.getProperty("address");
+
        } catch (Exception e) {
-           System.out.println("in log ");
-           e.printStackTrace();
-       }finally {
-           try {
-               fileInputStream.close();
-           } catch (Exception e) {
-               System.out.println("in log ");
-               e.printStackTrace();
-           }
+
+           LOGGER.error(e.getMessage(), e);
        }
        return strAddress;
    }
 
 
+
     private void updateVarInFile(){
 
         PrintWriter pw = null;
+
         try {
             pw = new PrintWriter(path);
             JSONObject object = new JSONObject();
             String array[] = getStrAddress().replaceAll("[^a-zA-ZА-Яа-яЁё\\d\\:\\,]","").split(",");
+
             for (String element : array) {
+
                 String elements[] = element.split(":");
                 object.put(elements[0],elements[1]);
             }
             pw.write(String.valueOf(object));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } finally {
             pw.flush();
+
+        } catch (Exception e) {
+
+            LOGGER.error(e.getMessage(), e);
+
+        } finally {
             pw.close();
         }
     }
@@ -236,30 +231,30 @@ public class Address {
 
         try {
             JSONParser parser = new JSONParser();
-            object = (JSONObject) parser.parse(new String(Files.readAllBytes(Paths.get(path))));
-
-            setStreet((String) object.get("street"));
-            setHome((String) object.get("home"));
+            objectJSON = (JSONObject) parser.parse(new String(Files.readAllBytes(Paths.get(path))));
+            setStreet((String) objectJSON.get("street"));
+            setHome((String) objectJSON.get("home"));
             this.street = getStreet();
             this.home = getHome();
+
         } catch (Exception e) {
-            System.out.println("in log");
-            e.printStackTrace();
+
+            LOGGER.error(e.getMessage(), e);
         }
     }
 
 
     public String getStreet() { return street; }
-    public void setStreet(String street) { this.street = street; }
+    private void setStreet(String street) { this.street = street; }
 
-    public void setHome(String home) { this.home = home;}
     public String getHome() { return home;}
+    private void setHome(String home) { this.home = home;}
 
-    public JSONObject getObject() { return object; }
-    public void setObject(JSONObject object) { this.object = object; }
+    public JSONObject getObjectJSON() { return objectJSON; }
+    private void setObjectJSON(JSONObject object) { this.objectJSON = object; }
 
     public String getStrAddress() { return strAddress;  }
-    public void setStrAddress(String strAddress) { this.strAddress = strAddress;  }
+    private void setStrAddress(String strAddress) { this.strAddress = strAddress;  }
 
 
 }
@@ -267,7 +262,7 @@ public class Address {
 
 
 
-//================
+//==================
 
 
 import java.lang.annotation.ElementType;
