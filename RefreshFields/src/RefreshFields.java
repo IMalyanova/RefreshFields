@@ -19,7 +19,6 @@ public class RefreshFields {
     private Address address;
 
     private static RefreshFields instance;
-    private int countAddressInRefreshFields = 0;
     private Properties prop;
 
 
@@ -28,6 +27,7 @@ public class RefreshFields {
 
         fieldsDefault();
         doRefresh();
+        address = new Address();
     }
 
     public static synchronized RefreshFields getInstance() {
@@ -88,9 +88,7 @@ public class RefreshFields {
                             refreshOld();
                             break;
                         case "address":
-                            if (countAddressInRefreshFields == 0){
-                                address = new Address();
-                                countAddressInRefreshFields = 1;
+                            if (address == null){
                                 break;
                             }else {
                                 address.refreshAddress();
