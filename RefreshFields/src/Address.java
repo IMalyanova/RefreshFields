@@ -17,6 +17,7 @@ public class Address {
 
     protected String path = "address.json";
 
+    private String pathProperties = "refresh.properties";
     private String street;
     private String home;
     private JSONObject objectJSON;
@@ -40,8 +41,6 @@ public class Address {
 
 
    protected String refreshStrAdr(){
-
-       String pathProperties = "refresh.properties";
 
        try {
            BufferedReader reader = new BufferedReader(new FileReader(pathProperties));

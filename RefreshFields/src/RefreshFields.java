@@ -20,6 +20,7 @@ public class RefreshFields {
 
     private static RefreshFields instance;
     private Properties prop;
+    private String path = "refresh.properties";
 
 
 
@@ -51,11 +52,8 @@ public class RefreshFields {
 
     public synchronized void doRefresh() {
 
-        String path = "refresh.properties";
-        BufferedReader reader = null;
-
         try {
-            reader = new BufferedReader(new FileReader(path));
+            BufferedReader reader = new BufferedReader(new FileReader(path));
             prop.load(reader);
 
             this.serchAnatation();
