@@ -42,10 +42,9 @@ public class Address {
    protected String refreshStrAdr(){
 
        String pathProperties = "refresh.properties";
-       BufferedReader reader = null;
 
        try {
-           reader = new BufferedReader(new FileReader(pathProperties));
+           BufferedReader reader = new BufferedReader(new FileReader(pathProperties));
            prop.load(reader);
            strAddress = prop.getProperty("address");
 
@@ -66,8 +65,11 @@ public class Address {
             pw = new PrintWriter(path);
             pw.write(getStrAddress());
             pw.flush();
+
         } catch (Exception e) {
+
             LOGGER.error(e.getMessage(), e);
+
         } finally {
             pw.close();
         }
