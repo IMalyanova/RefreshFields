@@ -45,7 +45,7 @@ public class Address {
        try {
            BufferedReader reader = new BufferedReader(new FileReader(pathProperties));
            prop.load(reader);
-           strAddress = prop.getProperty("address");
+           setStrAddress( prop.getProperty("address"));
 
        } catch (Exception e) {
 
