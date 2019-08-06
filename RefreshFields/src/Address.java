@@ -64,21 +64,10 @@ public class Address {
 
         try {
             pw = new PrintWriter(path);
-            JSONObject object = new JSONObject();
-            String array[] = getStrAddress().replaceAll("[^a-zA-ZА-Яа-яЁё\\d\\:\\,]","").split(",");
-
-            for (String element : array) {
-
-                String elements[] = element.split(":");
-                object.put(elements[0],elements[1]);
-            }
-            pw.write(String.valueOf(object));
+            pw.write(getStrAddress());
             pw.flush();
-
         } catch (Exception e) {
-
             LOGGER.error(e.getMessage(), e);
-
         } finally {
             pw.close();
         }
