@@ -35,6 +35,7 @@ public class RefreshFields {
 
     private static RefreshFields instance;
     private Properties prop;
+    private String path = "refresh.properties";
 
 
 
@@ -66,11 +67,8 @@ public class RefreshFields {
 
     public synchronized void doRefresh() {
 
-        String path = "refresh.properties";
-        BufferedReader reader = null;
-
         try {
-            reader = new BufferedReader(new FileReader(path));
+            BufferedReader reader = new BufferedReader(new FileReader(path));
             prop.load(reader);
 
             this.serchAnatation();
@@ -133,6 +131,7 @@ public class RefreshFields {
 }
 
 
+
 //========================
 
 
@@ -155,6 +154,7 @@ public class Address {
 
     protected String path = "address.json";
 
+    private String pathProperties = "refresh.properties";
     private String street;
     private String home;
     private JSONObject objectJSON;
@@ -179,13 +179,10 @@ public class Address {
 
    protected String refreshStrAdr(){
 
-       String pathProperties = "refresh.properties";
-       BufferedReader reader = null;
-
        try {
-           reader = new BufferedReader(new FileReader(pathProperties));
+           BufferedReader reader = new BufferedReader(new FileReader(pathProperties));
            prop.load(reader);
-           strAddress = prop.getProperty("address");
+           setStrAddress( prop.getProperty("address"));
 
        } catch (Exception e) {
 
@@ -202,15 +199,7 @@ public class Address {
 
         try {
             pw = new PrintWriter(path);
-            JSONObject object = new JSONObject();
-            String array[] = getStrAddress().replaceAll("[^a-zA-ZА-Яа-яЁё\\d\\:\\,]","").split(",");
-
-            for (String element : array) {
-
-                String elements[] = element.split(":");
-                object.put(elements[0],elements[1]);
-            }
-            pw.write(String.valueOf(object));
+            pw.write(getStrAddress());
             pw.flush();
 
         } catch (Exception e) {
@@ -257,6 +246,7 @@ public class Address {
 
 
 }
+
 
 
 
