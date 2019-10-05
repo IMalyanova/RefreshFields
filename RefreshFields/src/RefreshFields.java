@@ -5,7 +5,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.Properties;
 
-public class RefreshFields {
+class RefreshFields {
 
     private static final Logger LOGGER = Logger.getLogger(RefreshFields.class);
 

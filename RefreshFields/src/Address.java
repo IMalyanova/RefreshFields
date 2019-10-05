@@ -10,7 +10,7 @@ import java.nio.file.Paths;
 import java.util.Properties;
 
 
-public class Address {
+class Address {
 
     private static final Logger LOGGER = Logger.getLogger(Address.class);
 
@@ -75,7 +75,7 @@ public class Address {
     }
 
 
-    public synchronized void refreshAddress() {
+    public void refreshAddress() {
 
         refreshStrAdr();
         updateVarInFile();
